@@ -198,9 +198,42 @@ namespace RTags
             }
             cachedTags[tag].Remove(this);
         }
+
         #endregion
 
         #region Retrievers
+
+        /// <summary>
+        /// Get the first GameObject tagged with the specified tag
+        /// </summary>
+        public static GameObject GetFirstGameObjectWithTag(string tag, bool includeInactive)
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Get all GameObjects tagged with the specified tag
+        /// </summary>
+        public static GameObject[] GetAllGameObjectsWithTag(string tag, bool includeInactive = false)
+        {
+            return new GameObject[0];
+        }
+
+        /// <summary>
+        /// Gets the first component that is tagged with the specified tag
+        /// </summary>
+        public static T GetFirstComponentWithTag<T>(string tag, bool includeInactive = false) where T : Component
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Gets all components that are tagged with the specified tag
+        /// </summary>
+        public static T[] GetAllComponentsWithTag<T>(string tag, bool includeInactive = false) where T : Component
+        {
+            return new T[0];
+        }
 
         #endregion 
 
