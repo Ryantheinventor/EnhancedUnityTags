@@ -99,6 +99,24 @@ namespace RTags
         }
 
         /// <summary>
+        /// Gets an array of all tags assigned to the object
+        /// </summary>
+        public string[] GetObjectTags()
+        {
+            return _objectTags.ToArray();
+        }
+
+        public string[] GetComponentTags(Component component)
+        {
+            if(_componentTags.ContainsTagsForComponent(component))
+            {
+                return _componentTags.GetTagListByComponent(component).ToArray();
+            }
+            return new string[0];
+        }
+
+
+        /// <summary>
         /// Checks if the specified object is tagged
         /// </summary>
         /// <returns>True if the tag is present on the object</returns>
