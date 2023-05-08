@@ -6,4 +6,6 @@ using RTags;
 public class TestScript : MonoBehaviour
 {
     public Tag testTag;
+
+    public GameObject tagObject;
 }

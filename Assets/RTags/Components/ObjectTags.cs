@@ -70,6 +70,11 @@ namespace RTags
             }
         }
 
+        void Update() 
+        {
+            CacheNewTag("");   
+        }
+
         void OnDestroy() 
         {
             foreach(string tag in _objectTags)
@@ -208,6 +213,14 @@ namespace RTags
         /// </summary>
         public static GameObject GetFirstGameObjectWithTag(string tag, bool includeInactive)
         {
+            if(ConfirmTagCacheState(tag))
+            {
+
+            }
+            else
+            {
+                
+            }
             return null;
         }
 
@@ -216,6 +229,14 @@ namespace RTags
         /// </summary>
         public static GameObject[] GetAllGameObjectsWithTag(string tag, bool includeInactive = false)
         {
+            if(ConfirmTagCacheState(tag))
+            {
+
+            }
+            else
+            {
+                
+            }
             return new GameObject[0];
         }
 
@@ -224,6 +245,14 @@ namespace RTags
         /// </summary>
         public static T GetFirstComponentWithTag<T>(string tag, bool includeInactive = false) where T : Component
         {
+            if(ConfirmTagCacheState(tag))
+            {
+
+            }
+            else
+            {
+                
+            }
             return null;
         }
 
@@ -232,6 +261,14 @@ namespace RTags
         /// </summary>
         public static T[] GetAllComponentsWithTag<T>(string tag, bool includeInactive = false) where T : Component
         {
+            if(ConfirmTagCacheState(tag))
+            {
+
+            }
+            else
+            {
+                
+            }
             return new T[0];
         }
 
@@ -313,6 +350,38 @@ namespace RTags
             if(cachedTags.ContainsKey(tag))
             {
                 cachedTags.Remove(tag);
+            }
+        }
+
+        //Makes sure the tag is cached if needed and return true if the tag is cached
+        private static bool ConfirmTagCacheState(string tag)
+        {
+            if(!IsTagCached(tag)) { return false; }
+            CacheNewTag(tag, true);
+            return true;
+        }
+
+        private static void CacheNewTag(string tag, bool skipCachedCheck = false)
+        {
+            if(skipCachedCheck || !IsTagCached(tag)){ return; }
+            ObjectTags[] oTagsLoaded = GameObject.FindObjectsOfType<ObjectTags>(true);
+            if(!cachedTags.ContainsKey(tag)){ cachedTags.Add(tag, new List<ObjectTags>()); }
+            foreach(ObjectTags ot in oTagsLoaded)
+            {
+                if(cachedTags[tag].Contains(ot)){ continue; }
+                if(ot._objectTags.Contains(tag))
+                {
+                    cachedTags[tag].Add(ot); 
+                    continue;
+                }
+                foreach(ComponentTags cTags in ot._componentTags)
+                {
+                    if(cTags.componentTags.Contains(tag))
+                    {
+                        cachedTags[tag].Add(ot);
+                        break;
+                    }
+                }
             }
         }
 
