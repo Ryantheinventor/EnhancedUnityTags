@@ -76,7 +76,7 @@ namespace RTagsEditor
             System.Type cType = component.GetType();
             if(!componentListFoldouts.ContainsKey(cType)) { componentListFoldouts.Add(cType, false); }
 
-            GUIContent label = component.GetType() == typeof(ObjectTags) ? new GUIContent("Object Tags") : new GUIContent(cType.ToString());
+            GUIContent label = component.GetType() == typeof(ObjectTags) ? new GUIContent("Object Tags" + $" ({tags.Count})") : new GUIContent(cType.ToString() + $" ({tags.Count})");
 
             componentListFoldouts[cType] = EditorGUILayout.Foldout(componentListFoldouts[cType], label, true, foldOutStyle);
             if(componentListFoldouts[cType])

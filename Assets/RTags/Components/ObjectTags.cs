@@ -35,6 +35,7 @@ namespace RTags
         }
 
         #region Instance Methods
+
         void Awake() 
         {
             foreach(string tag in _objectTags)
@@ -68,11 +69,6 @@ namespace RTags
                     }
                 }
             }
-        }
-
-        void Update() 
-        {
-            CacheNewTag("");   
         }
 
         void OnDestroy() 
@@ -213,13 +209,22 @@ namespace RTags
         /// </summary>
         public static GameObject GetFirstGameObjectWithTag(string tag, bool includeInactive)
         {
-            if(ConfirmTagCacheState(tag))
+            if(Application.isPlaying && ConfirmTagCacheState(tag))
             {
-
+                if(includeInactive) {Debug.LogWarning("Objects that have not been active before can not be in the cache and will not show up in the results, if you need to get said objects, you should use a non cached tag"); }
+                if(!cachedTags.ContainsKey(tag)){ return null; }
+                foreach(ObjectTags ot in cachedTags[tag])
+                {
+                    if(!ot.gameObject.activeInHierarchy && !includeInactive) { continue; }
+                    if(ot.IsObjectTagged(tag)) { return ot.gameObject; }
+                }
             }
             else
             {
-                
+                foreach(ObjectTags ot in FindObjectsOfType<ObjectTags>(includeInactive))
+                {
+                    if(ot.IsObjectTagged(tag)) { return ot.gameObject; }
+                }
             }
             return null;
         }
@@ -229,15 +234,25 @@ namespace RTags
         /// </summary>
         public static GameObject[] GetAllGameObjectsWithTag(string tag, bool includeInactive = false)
         {
-            if(ConfirmTagCacheState(tag))
+            List<GameObject> results = new List<GameObject>();
+            if(Application.isPlaying && ConfirmTagCacheState(tag))
             {
-
+                if(includeInactive) {Debug.LogWarning("Objects that have not been active before can not be in the cache and will not show up in the results, if you need to get said objects, you should use a non cached tag"); }
+                if(!cachedTags.ContainsKey(tag)) { return results.ToArray(); }
+                foreach(ObjectTags ot in cachedTags[tag])
+                {
+                    if(!ot.gameObject.activeInHierarchy && !includeInactive) { continue; }
+                    if(ot.IsObjectTagged(tag)) { results.Add(ot.gameObject); }
+                }
             }
             else
             {
-                
+                foreach(ObjectTags ot in FindObjectsOfType<ObjectTags>(includeInactive))
+                {
+                    if(ot.IsObjectTagged(tag)) { results.Add(ot.gameObject); }
+                }
             }
-            return new GameObject[0];
+            return results.ToArray();
         }
 
         /// <summary>
@@ -245,13 +260,44 @@ namespace RTags
         /// </summary>
         public static T GetFirstComponentWithTag<T>(string tag, bool includeInactive = false) where T : Component
         {
-            if(ConfirmTagCacheState(tag))
+            if(Application.isPlaying && ConfirmTagCacheState(tag))
             {
-
+                if(includeInactive) {Debug.LogWarning("Objects that have not been active before can not be in the cache and will not show up in the results, if you need to get said objects, you should use a non cached tag"); }
+                if(!cachedTags.ContainsKey(tag)){ return null; }
+                foreach(ObjectTags ot in cachedTags[tag])
+                {
+                    if(!ot.gameObject.activeInHierarchy && !includeInactive) { continue; }
+                    foreach(ComponentTags cTags in ot._componentTags)
+                    {
+                        var cType = cTags.targetComponent.GetType();
+                        bool componentEnabled = !(typeof(Behaviour).IsAssignableFrom(cType) && !((Behaviour)cTags.targetComponent).enabled);
+                        if(typeof(T).IsAssignableFrom(cType) && (componentEnabled || includeInactive)) //keep disabled behaviors from showing up if includeInactive is false
+                        {
+                            if(cTags.componentTags.Contains(tag))
+                            {
+                                return (T)cTags.targetComponent;
+                            }
+                        }
+                    }
+                }
             }
             else
             {
-                
+                foreach(ObjectTags ot in FindObjectsOfType<ObjectTags>(includeInactive))
+                {
+                    foreach(ComponentTags cTags in ot._componentTags)
+                    {
+                        var cType = cTags.targetComponent.GetType();
+                        bool componentEnabled = !(typeof(Behaviour).IsAssignableFrom(cType) && !((Behaviour)cTags.targetComponent).enabled);
+                        if(typeof(T).IsAssignableFrom(cType) && (componentEnabled || includeInactive)) //keep disabled behaviors from showing up if includeInactive is false
+                        {
+                            if(cTags.componentTags.Contains(tag))
+                            {
+                                return (T)cTags.targetComponent;
+                            }
+                        }
+                    }
+                }
             }
             return null;
         }
@@ -261,15 +307,49 @@ namespace RTags
         /// </summary>
         public static T[] GetAllComponentsWithTag<T>(string tag, bool includeInactive = false) where T : Component
         {
-            if(ConfirmTagCacheState(tag))
+            List<T> results = new List<T>();
+            if(Application.isPlaying && ConfirmTagCacheState(tag))
             {
+                if(includeInactive) {Debug.LogWarning("Objects that have not been active before can not be in the cache and will not show up in the results, if you need to get said objects, you should use a non cached tag"); }
+                if(!cachedTags.ContainsKey(tag)){ return results.ToArray(); }
+                foreach(ObjectTags ot in cachedTags[tag])
+                {
+                    if(!ot.gameObject.activeInHierarchy && !includeInactive) { continue; }
+                    foreach(ComponentTags cTags in ot._componentTags)
+                    {
+                        var cType = cTags.targetComponent.GetType();
+                        bool componentEnabled = !(typeof(Behaviour).IsAssignableFrom(cType) && !((Behaviour)cTags.targetComponent).enabled);
+                        if(typeof(T).IsAssignableFrom(cType) && (componentEnabled || includeInactive)) //keep disabled behaviors from showing up if includeInactive is false
+                        {
 
+
+                            if(cTags.componentTags.Contains(tag))
+                            {
+                                results.Add((T)cTags.targetComponent);
+                            }
+                        }
+                    }
+                }
             }
             else
             {
-                
+                foreach(ObjectTags ot in FindObjectsOfType<ObjectTags>(includeInactive))
+                {
+                    foreach(ComponentTags cTags in ot._componentTags)
+                    {
+                        var cType = cTags.targetComponent.GetType();
+                        bool componentEnabled = !(typeof(Behaviour).IsAssignableFrom(cType) && !((Behaviour)cTags.targetComponent).enabled);
+                        if(typeof(T).IsAssignableFrom(cType) && (componentEnabled || includeInactive)) //keep disabled behaviors from showing up if includeInactive is false
+                        {
+                            if(cTags.componentTags.Contains(tag))
+                            {
+                                results.Add((T)cTags.targetComponent);
+                            }
+                        }
+                    }
+                }
             }
-            return new T[0];
+            return results.ToArray();
         }
 
         #endregion 

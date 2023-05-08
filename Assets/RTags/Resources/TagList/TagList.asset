@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TagList
   m_EditorClassIdentifier: 
   tags:
-  - tagName: NCTag
-    isPreCached: 0
-  - tagName: CTag
+  - tagName: ShowVelocity
     isPreCached: 1
+  - tagName: Bump
+    isPreCached: 0

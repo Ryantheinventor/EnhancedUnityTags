@@ -15,9 +15,18 @@ namespace RTagsEditor
             //base.OnGUI(position, property, label);
             EditorGUI.BeginProperty(position, label, property);
             TagListAsset tagList = AssetDatabase.LoadAssetAtPath<TagListAsset>(ObjectTags.tagListPath + "/" + ObjectTags.tagListName + ".asset");
+
+            Rect labelRect = new Rect(position);
+            Rect valueRect = new Rect(position);
+            labelRect.width = EditorGUIUtility.labelWidth;
+            valueRect.width = position.width - labelRect.width;
+            valueRect.position += new Vector2(labelRect.width, 0);
+
+            GUI.Label(labelRect, property.displayName);
+
             if(!tagList) 
             {
-                if(GUI.Button(position, "Create Tag List"))
+                if(GUI.Button(valueRect, "Create Tag List"))
                 {
                     TagListEditor.CreateNewTagList();
                 }
@@ -26,10 +35,16 @@ namespace RTagsEditor
             {
                 List<string> options = tagList.GetTagNames();
                 List<string> displayedOptions = tagList.GetTagNamesWithCacheStatus();
+                string curTag = property.FindPropertyRelative("tagName").stringValue;
                 displayedOptions.Insert(0,"None");
+                if(!options.Contains(curTag) && curTag != "") 
+                {
+                    options.Add(curTag);
+                    displayedOptions.Add($"{curTag}(Not Cached)(Script Defined)");
+                }
                 if(options.Count == 0)
                 {
-                    if(GUI.Button(position, "Add tag in tag list."))
+                    if(GUI.Button(valueRect, "Add tag in tag list."))
                     {
                         Selection.activeObject = tagList;
                     }
@@ -37,10 +52,9 @@ namespace RTagsEditor
                 else
                 {
                     bool changed = false;
-                    string curTag = property.FindPropertyRelative("tagName").stringValue;
                     int curSelection = options.IndexOf(curTag);
                     curSelection++;
-                    int selected = EditorGUI.Popup(position, curSelection, displayedOptions.ToArray());
+                    int selected = EditorGUI.Popup(valueRect, curSelection, displayedOptions.ToArray());
                     if(selected != curSelection)
                     {
                         if(selected == 0) 
