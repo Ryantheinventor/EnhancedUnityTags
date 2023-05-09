@@ -7,7 +7,7 @@ public class SecondaryTestScript : MonoBehaviour
 {
     private IEnumerator Start()
     {
-        yield return new WaitForSeconds(5);
         GetComponent<ObjectTags>().AddTagToGO("CreatedTag");
+        yield return new WaitForSeconds(5);
     }
 }

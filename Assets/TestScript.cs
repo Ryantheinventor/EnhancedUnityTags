@@ -12,6 +12,7 @@ public class TestScript : MonoBehaviour
     private IEnumerator Start() 
     {
         StartCoroutine(HideNewTagedObjects());
+        StartCoroutine(ChangeCacheMode());
         while(true)
         {
             yield return new WaitForSeconds(1.5f);
@@ -23,12 +24,22 @@ public class TestScript : MonoBehaviour
     {
         while(true)
         {    
-            yield return new WaitForSeconds(15);
+            yield return new WaitForSeconds(5);
             foreach(GameObject go in ObjectTags.GetAllGameObjectsWithTag("CreatedTag", true))
             {
                 go.SetActive(!go.activeInHierarchy);
             }
         }
+    }
+
+    private IEnumerator ChangeCacheMode()
+    {
+        yield return new WaitForSeconds(20f);
+        Debug.Log("Changing cache");
+        Debug.Log(ObjectTags.IsTagTracked("CreatedTag"));
+        ObjectTags.TrackNewTag("CreatedTag");
+        Debug.Log(ObjectTags.IsTagTracked("CreatedTag"));
+        ObjectTags.SetTagCacheMode("CreatedTag", true);
     }
 
     private void Update() 

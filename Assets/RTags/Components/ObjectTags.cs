@@ -451,17 +451,33 @@ namespace RTags
             }
         }
 
+        /// <summary>
+        /// When a new tag is set to cache it does not automaticaly get cached calling this will force all waiting cached tags to have their cache loaded
+        /// </summary>
+        public static void ForceNewCacheLoad()
+        {
+            foreach(string tag in needsCacheTags)
+            {
+                CacheNewTag(tag, true);
+            }
+            needsCacheTags.Clear();
+        }
+
         //Makes sure the tag is cached if needed and return true if the tag is cached
         private static bool ConfirmTagCacheState(string tag)
         {
             if(!IsTagCached(tag)) { return false; }
-            CacheNewTag(tag, true);
+            if(needsCacheTags.Contains(tag))
+            {
+                CacheNewTag(tag, true);
+                needsCacheTags.Remove(tag);
+            }
             return true;
         }
 
         private static void CacheNewTag(string tag, bool skipCachedCheck = false)
         {
-            if(skipCachedCheck || !IsTagCached(tag)){ return; }
+            if(!skipCachedCheck && !IsTagCached(tag)){ return; }
             ObjectTags[] oTagsLoaded = GameObject.FindObjectsOfType<ObjectTags>(true);
             if(!cachedTags.ContainsKey(tag)){ cachedTags.Add(tag, new List<ObjectTags>()); }
             foreach(ObjectTags ot in oTagsLoaded)
@@ -493,6 +509,7 @@ namespace RTags
             else
             {
                 _trackedTags.Add(new TagListAsset.TagInfo() {tagName = tag, isPreCached = useCache});
+                if(useCache) { needsCacheTags.Add(tag); }
             }
         }
         #endregion
