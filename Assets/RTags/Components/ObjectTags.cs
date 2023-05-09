@@ -11,7 +11,8 @@ namespace RTags
     {
         public static readonly string tagListPath = "Assets/RTags/Resources/TagList";
         public static readonly string tagListName = "TagList";
-        private static Dictionary<string, List<ObjectTags>> cachedTags = new Dictionary<string, List<ObjectTags>>();
+        //private static Dictionary<string, List<ObjectTags>> cachedTags = new Dictionary<string, List<ObjectTags>>();
+        private static Dictionary<string, Dictionary<System.Type, List<Component>>> cache = new Dictionary<string, Dictionary<System.Type, List<Component>>>();
         private static List<string> needsCacheTags = new List<string>();//tracks tags that have had their cache mode changed and need to be cached on their next call
         private static List<TagListAsset.TagInfo> _trackedTags;
         private static List<TagListAsset.TagInfo> TrackedTags
@@ -42,13 +43,12 @@ namespace RTags
             {
                 if(tag != "" && IsTagCached(tag))
                 {
-                    if(cachedTags.ContainsKey(tag) && !cachedTags[tag].Contains(this))
+                    var workingType = typeof(ObjectTags);
+                    if(!cache.ContainsKey(tag)){cache.Add(tag, new Dictionary<System.Type, List<Component>>());}
+                    if(!cache[tag].ContainsKey(workingType)){cache[tag].Add(workingType, new List<Component>());}
+                    if(!cache[tag][workingType].Contains(this))
                     {
-                        cachedTags[tag].Add(this);
-                    }
-                    else
-                    {
-                        cachedTags.Add(tag, new List<ObjectTags>() { this });
+                        cache[tag][workingType].Add(this);
                     }
                 }
             }
@@ -58,13 +58,12 @@ namespace RTags
                 {
                     if (tag != "" && IsTagCached(tag))
                     {    
-                        if(cachedTags.ContainsKey(tag) && !cachedTags[tag].Contains(this))
+                        var workingType = tagSet.targetComponent.GetType();
+                        if(!cache.ContainsKey(tag)){cache.Add(tag, new Dictionary<System.Type, List<Component>>());}
+                        if(!cache[tag].ContainsKey(workingType)){cache[tag].Add(workingType, new List<Component>());}
+                        if(!cache[tag][workingType].Contains(tagSet.targetComponent))
                         {
-                            cachedTags[tag].Add(this);
-                        }
-                        else
-                        {
-                            cachedTags.Add(tag, new List<ObjectTags>() { this });
+                            cache[tag][workingType].Add(tagSet.targetComponent);
                         }
                     }
                 }
@@ -77,10 +76,10 @@ namespace RTags
             {
                 if(tag != "" && IsTagCached(tag))
                 {
-                    if(cachedTags.ContainsKey(tag) && cachedTags[tag].Contains(this))
-                    {
-                        cachedTags[tag].Remove(this);
-                    }
+                    var workingType = typeof(ObjectTags);
+                    if(!cache.ContainsKey(tag)){continue;}
+                    if(!cache[tag].ContainsKey(workingType)){continue;}
+                    cache[tag][workingType].Remove(this);
                 }
             }
             foreach(ComponentTags tagSet in _componentTags)
@@ -89,10 +88,10 @@ namespace RTags
                 {
                     if (tag != "" && IsTagCached(tag))
                     {    
-                        if(cachedTags.ContainsKey(tag) && cachedTags[tag].Contains(this))
-                        {
-                            cachedTags[tag].Remove(this);
-                        }
+                        var workingType = tagSet.targetComponent.GetType();
+                        if(!cache.ContainsKey(tag)){continue;}
+                        if(!cache[tag].ContainsKey(workingType)){continue;}
+                        cache[tag][workingType].Remove(tagSet.targetComponent);
                     }
                 }
             }
@@ -147,13 +146,12 @@ namespace RTags
             if (_objectTags.Contains(tag)) { return; }
             _objectTags.Add(tag);
             if(!IsTagCached(tag)){ return; }
-            if (cachedTags.ContainsKey(tag) && !cachedTags[tag].Contains(this))
+            var workingType = typeof(ObjectTags);
+            if(!cache.ContainsKey(tag)){cache.Add(tag, new Dictionary<System.Type, List<Component>>());}
+            if(!cache[tag].ContainsKey(workingType)){cache[tag].Add(workingType, new List<Component>());}
+            if(!cache[tag][workingType].Contains(this))
             {
-                cachedTags[tag].Add(this);
-            }
-            else 
-            {
-                cachedTags.Add(tag, new List<ObjectTags> { this });
+                cache[tag][workingType].Add(this);
             }
         }
 
@@ -170,13 +168,12 @@ namespace RTags
             }
             if (_componentTags.GetTagListByComponent(c).Contains(tag)) { return; }
             _componentTags.GetTagListByComponent(c).Add(tag);
-            if (cachedTags.ContainsKey(tag) && !cachedTags[tag].Contains(this))
+            var workingType = c.GetType();
+            if(!cache.ContainsKey(tag)){cache.Add(tag, new Dictionary<System.Type, List<Component>>());}
+            if(!cache[tag].ContainsKey(workingType)){cache[tag].Add(workingType, new List<Component>());}
+            if(!cache[tag][workingType].Contains(this))
             {
-                cachedTags[tag].Add(this);
-            }
-            else
-            {
-                cachedTags.Add(tag, new List<ObjectTags>() { this });
+                cache[tag][workingType].Add(this);
             }
         }
 
@@ -188,12 +185,10 @@ namespace RTags
             if (tag == "") { return; }
             if (!_objectTags.Contains(tag)) { return; }
             _objectTags.Remove(tag);
-            Component[] components = GetComponents<Component>();
-            foreach (Component c in components) 
-            {
-                if (IsComponentTagged(tag, c)) { return; }
-            }
-            cachedTags[tag].Remove(this);
+            var workingType = typeof(ObjectTags);
+            if(!cache.ContainsKey(tag)){return;}
+            if(!cache[tag].ContainsKey(workingType)){return;}
+            cache[tag][workingType].Remove(this);
         }
 
         /// <summary>
@@ -209,13 +204,10 @@ namespace RTags
             }
             if (!_componentTags.GetTagListByComponent(c).Contains(tag)) { return; }
             _componentTags.GetTagListByComponent(c).Remove(tag);
-            if (_objectTags.Contains(tag)) { return; }
-            Component[] components = GetComponents<Component>();
-            foreach (Component otherCs in components)
-            {
-                if (IsComponentTagged(tag, otherCs)){ return; }
-            }
-            cachedTags[tag].Remove(this);
+            var workingType = c.GetType();
+            if(!cache.ContainsKey(tag)){return;}
+            if(!cache[tag].ContainsKey(workingType)){return;}
+            cache[tag][workingType].Remove(c);
         }
 
         #endregion
@@ -229,13 +221,12 @@ namespace RTags
         {
             if(Application.isPlaying && ConfirmTagCacheState(tag))
             {
+                var workingType = typeof(ObjectTags);
                 if(includeInactive) {Debug.LogWarning("Objects that have not been active before can not be in the cache and will not show up in the results, if you need to get said objects, you should use a non cached tag"); }
-                if(!cachedTags.ContainsKey(tag)){ return null; }
-                foreach(ObjectTags ot in cachedTags[tag])
-                {
-                    if(!ot.gameObject.activeInHierarchy && !includeInactive) { continue; }
-                    if(ot.IsObjectTagged(tag)) { return ot.gameObject; }
-                }
+                if(!cache.ContainsKey(tag)){ return null; }
+                if(!cache[tag].ContainsKey(workingType)){ return null; }
+                if(cache[tag][workingType].Count == 0) { return null; }
+                return cache[tag][workingType][0].gameObject;
             }
             else
             {
@@ -252,25 +243,34 @@ namespace RTags
         /// </summary>
         public static GameObject[] GetAllGameObjectsWithTag(string tag, bool includeInactive = false)
         {
-            List<GameObject> results = new List<GameObject>();
             if(Application.isPlaying && ConfirmTagCacheState(tag))
             {
+                var workingType = typeof(ObjectTags);
                 if(includeInactive) {Debug.LogWarning("Objects that have not been active before can not be in the cache and will not show up in the results, if you need to get said objects, you should use a non cached tag"); }
-                if(!cachedTags.ContainsKey(tag)) { return results.ToArray(); }
-                foreach(ObjectTags ot in cachedTags[tag])
+                if(!cache.ContainsKey(tag)) { return new GameObject[0]; }
+                if(!cache[tag].ContainsKey(workingType)){ return new GameObject[0]; }
+                if(cache[tag][workingType].Count == 0) { return new GameObject[0]; }
+                List<GameObject> results = new List<GameObject>();
+                for (int i = 0; i < cache[tag][workingType].Count; i++)
                 {
-                    if(!ot.gameObject.activeInHierarchy && !includeInactive) { continue; }
-                    if(ot.IsObjectTagged(tag)) { results.Add(ot.gameObject); }
+                    GameObject go = cache[tag][workingType][i].gameObject;
+                    if(go.activeInHierarchy || includeInactive)
+                    {
+                        results.Add(cache[tag][workingType][i].gameObject);
+                    }
                 }
+                return results.ToArray();
             }
             else
             {
+                List<GameObject> results = new List<GameObject>();
                 foreach(ObjectTags ot in FindObjectsOfType<ObjectTags>(includeInactive))
                 {
                     if(ot.IsObjectTagged(tag)) { results.Add(ot.gameObject); }
                 }
+                return results.ToArray();
             }
-            return results.ToArray();
+            
         }
 
         /// <summary>
@@ -281,23 +281,7 @@ namespace RTags
             if(Application.isPlaying && ConfirmTagCacheState(tag))
             {
                 if(includeInactive) {Debug.LogWarning("Objects that have not been active before can not be in the cache and will not show up in the results, if you need to get said objects, you should use a non cached tag"); }
-                if(!cachedTags.ContainsKey(tag)){ return null; }
-                foreach(ObjectTags ot in cachedTags[tag])
-                {
-                    if(!ot.gameObject.activeInHierarchy && !includeInactive) { continue; }
-                    foreach(ComponentTags cTags in ot._componentTags)
-                    {
-                        var cType = cTags.targetComponent.GetType();
-                        bool componentEnabled = !(typeof(Behaviour).IsAssignableFrom(cType) && !((Behaviour)cTags.targetComponent).enabled);
-                        if(typeof(T).IsAssignableFrom(cType) && (componentEnabled || includeInactive)) //keep disabled behaviors from showing up if includeInactive is false
-                        {
-                            if(cTags.componentTags.Contains(tag))
-                            {
-                                return (T)cTags.targetComponent;
-                            }
-                        }
-                    }
-                }
+                return GetAllValidMatchesFromCache<T>(tag)[0] as T;
             }
             else
             {
@@ -325,32 +309,21 @@ namespace RTags
         /// </summary>
         public static T[] GetAllComponentsWithTag<T>(string tag, bool includeInactive = false) where T : Component
         {
-            List<T> results = new List<T>();
+            
             if(Application.isPlaying && ConfirmTagCacheState(tag))
             {
+                var workingType = typeof(T);
                 if(includeInactive) {Debug.LogWarning("Objects that have not been active before can not be in the cache and will not show up in the results, if you need to get said objects, you should use a non cached tag"); }
-                if(!cachedTags.ContainsKey(tag)){ return results.ToArray(); }
-                foreach(ObjectTags ot in cachedTags[tag])
+                List<T> results = new List<T>();
+                foreach(Component c in GetAllValidMatchesFromCache<T>(tag))
                 {
-                    if(!ot.gameObject.activeInHierarchy && !includeInactive) { continue; }
-                    foreach(ComponentTags cTags in ot._componentTags)
-                    {
-                        var cType = cTags.targetComponent.GetType();
-                        bool componentEnabled = !(typeof(Behaviour).IsAssignableFrom(cType) && !((Behaviour)cTags.targetComponent).enabled);
-                        if(typeof(T).IsAssignableFrom(cType) && (componentEnabled || includeInactive)) //keep disabled behaviors from showing up if includeInactive is false
-                        {
-
-
-                            if(cTags.componentTags.Contains(tag))
-                            {
-                                results.Add((T)cTags.targetComponent);
-                            }
-                        }
-                    }
+                    results.Add(c as T);
                 }
+                return results.ToArray();
             }
             else
             {
+                List<T> results = new List<T>();
                 foreach(ObjectTags ot in FindObjectsOfType<ObjectTags>(includeInactive))
                 {
                     foreach(ComponentTags cTags in ot._componentTags)
@@ -366,8 +339,8 @@ namespace RTags
                         }
                     }
                 }
+                return results.ToArray();
             }
-            return results.ToArray();
         }
 
         #endregion 
@@ -445,9 +418,9 @@ namespace RTags
 
         private static void DumpCacheForTag(string tag)
         {
-            if(cachedTags.ContainsKey(tag))
+            if(cache.ContainsKey(tag))
             {
-                cachedTags.Remove(tag);
+                cache.Remove(tag);
             }
         }
 
@@ -479,24 +452,39 @@ namespace RTags
         {
             if(!skipCachedCheck && !IsTagCached(tag)){ return; }
             ObjectTags[] oTagsLoaded = GameObject.FindObjectsOfType<ObjectTags>(true);
-            if(!cachedTags.ContainsKey(tag)){ cachedTags.Add(tag, new List<ObjectTags>()); }
+            if(!cache.ContainsKey(tag)){ cache.Add(tag, new Dictionary<System.Type, List<Component>>()); }
             foreach(ObjectTags ot in oTagsLoaded)
             {
-                if(cachedTags[tag].Contains(ot)){ continue; }
                 if(ot._objectTags.Contains(tag))
                 {
-                    cachedTags[tag].Add(ot); 
-                    continue;
+                    var workingType = typeof(ObjectTags);
+                    if(!cache[tag].ContainsKey(workingType)) { cache[tag].Add(workingType, new List<Component>()); }
+                    cache[tag][workingType].Add(ot);
                 }
                 foreach(ComponentTags cTags in ot._componentTags)
                 {
                     if(cTags.componentTags.Contains(tag))
                     {
-                        cachedTags[tag].Add(ot);
-                        break;
-                    }
+                        var workingType = cTags.targetComponent.GetType();
+                        if(!cache[tag].ContainsKey(workingType)) { cache[tag].Add(workingType, new List<Component>()); }
+                        cache[tag][workingType].Add(cTags.targetComponent);
+                    }   
                 }
             }
+        }
+
+        private static List<Component> GetAllValidMatchesFromCache<T>(string tag) where T : Component
+        {
+            List<Component> results = new List<Component>();
+            if(!cache.ContainsKey(tag)){return results;}
+            foreach(KeyValuePair<System.Type, List<Component>> dict in cache[tag])
+            {
+                if(typeof(T).IsAssignableFrom(dict.Key))
+                {
+                    results.AddRange(dict.Value);
+                }
+            }
+            return results;
         }
 
         public static void TrackNewTag(string tag, bool useCache = false)

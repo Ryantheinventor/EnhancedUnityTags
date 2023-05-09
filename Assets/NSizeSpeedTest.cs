@@ -44,29 +44,33 @@ public class NSizeSpeedTest : MonoBehaviour
 
     private void TestDefault()
     {
-        Stopwatch sw = new Stopwatch();
-        sw.Start();
+        //Stopwatch sw = new Stopwatch();
+        long startTicks = System.DateTime.Now.Ticks;
+        //sw.Start();
         
         GameObject[] objs =  GameObject.FindGameObjectsWithTag("NSizeTest");
 
-        sw.Stop();
+        long endTicks = System.DateTime.Now.Ticks;
+        //sw.Stop();
         if(objs.Length != nSize) {UnityEngine.Debug.Log("Failed");}
-        UnityEngine.Debug.Log("Built in tag time:" + sw.ElapsedMilliseconds);
+        UnityEngine.Debug.Log("Built in tag time:" + (endTicks - startTicks));
     }
 
     private void TestRTags(bool cached)
     {
         ObjectTags.SetTagCacheMode("NSizeTest", cached);
         ObjectTags.ForceNewCacheLoad();
-        Stopwatch sw = new Stopwatch();
-        sw.Start();
+        // Stopwatch sw = new Stopwatch();
+        long startTicks = System.DateTime.Now.Ticks;
+        // sw.Start();
         
         GameObject[] objs =  ObjectTags.GetAllGameObjectsWithTag("NSizeTest");
 
-        sw.Stop();
+        long endTicks = System.DateTime.Now.Ticks;
+        // sw.Stop();
         if(objs.Length != nSize) {UnityEngine.Debug.Log("Failed");}
         string cacheMode = cached ? "cached" : "notCached";
-        UnityEngine.Debug.Log($"RTags time ({cacheMode}):" + sw.ElapsedMilliseconds);
+        UnityEngine.Debug.Log($"RTags time ({cacheMode}):" + (endTicks - startTicks));
     }
 
     // Update is called once per frame

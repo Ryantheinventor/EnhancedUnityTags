@@ -155,7 +155,7 @@ MonoBehaviour:
   nSize: 10000
   unTaggedNoiseSize: 10000
   taggedNoiseSize: 10000
-  attempts: 5
+  attempts: 1
 --- !u!4 &25390983
 Transform:
   m_ObjectHideFlags: 0
