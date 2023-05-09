@@ -44,7 +44,9 @@ public class TestScript : MonoBehaviour
 
     private void Update() 
     {
-        foreach(Rigidbody rb in ObjectTags.GetAllComponentsWithTag<Rigidbody>(velocityTag))
+        Rigidbody[] rbs = ObjectTags.GetAllComponentsWithTag<Rigidbody>(velocityTag);
+        Debug.Log(rbs.Length);
+        foreach(Rigidbody rb in rbs)
         {
             Debug.DrawLine(rb.position, rb.position + rb.velocity, Color.red);
         }
