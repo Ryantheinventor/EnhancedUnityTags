@@ -6,7 +6,7 @@ using RTags.Utils;
 
 namespace RTags
 {
-
+    [DisallowMultipleComponent]
     public class ObjectTags : MonoBehaviour
     {
         public static readonly string tagListPath = "Assets/RTags/Resources/TagList";
@@ -52,7 +52,7 @@ namespace RTags
             {
                 foreach(string tag in tagSet.componentTags)
                 {
-                    if (tag != "" && IsTagCached(tag))
+                    if (tag != "" && IsTagCached(tag) && tagSet.targetComponent && tagSet.targetComponent.gameObject == gameObject)
                     {    
                         CacheTag(tag, tagSet.targetComponent);
                     }

@@ -37,6 +37,62 @@ namespace RTagsEditor
             //base.OnInspectorGUI();
             bool targetEdited = false;
 
+
+            List<ObjectTags.ComponentTags> newSets = new List<ObjectTags.ComponentTags>();
+            for (int i = ((ObjectTags)target)._componentTags.Count - 1; i >= 0 ; i--)
+            {
+                var ct = ((ObjectTags)target)._componentTags[i];
+                if(!ct.targetComponent) 
+                { 
+                    ((ObjectTags)target)._componentTags.RemoveAt(i);
+                    targetEdited = true;
+                    continue;
+                }
+                else if(ct.targetComponent.gameObject != ((ObjectTags)target).gameObject)
+                {
+                    bool foundMatch = false;
+                    foreach(Component c in components)
+                    {
+                        if(c.GetType() == ct.targetComponent.GetType())
+                        {
+                            var newCT = new ObjectTags.ComponentTags();
+                            newCT.targetComponent = c;
+                            newCT.componentTags = new List<string>(ct.componentTags);
+                            newSets.Add(newCT);
+                            foundMatch = true;
+                            targetEdited = true;
+                        }
+                    }
+                    if(!foundMatch)
+                    {
+                        ((ObjectTags)target)._componentTags.RemoveAt(i);
+                        targetEdited = true;
+                    }
+                }
+            }
+            foreach(var newSet in newSets)
+            {
+                bool foundMatch = false;
+                foreach(var oldSet in ((ObjectTags)target)._componentTags)
+                {
+                    if(oldSet.targetComponent == newSet.targetComponent)
+                    {
+                        foreach(string tag in newSet.componentTags)//we gettin deep
+                        {
+                            if(!oldSet.componentTags.Contains(tag))
+                            {
+                                oldSet.componentTags.Add(tag);
+                            }
+                        }
+                        foundMatch = true;
+                    }
+                }
+                if(!foundMatch)
+                {
+                    ((ObjectTags)target)._componentTags.Add(newSet);
+                }
+            }
+
             if(CreateTagList(((ObjectTags)target), ((ObjectTags)target)._objectTags))
             {
                 targetEdited = true;
@@ -67,7 +123,6 @@ namespace RTagsEditor
                 EditorUtility.SetDirty(target);
             }
         }
-
 
         public bool CreateTagList(Component component, List<string> tags)
         {
