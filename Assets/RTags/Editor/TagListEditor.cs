@@ -8,8 +8,7 @@ using RTags.Data;
 namespace RTagsEditor
 {
     public class TagListEditor : MonoBehaviour
-    {
-        
+    {     
         [MenuItem("Assets/Create/RTags/Tag List")]
         public static void CreateNewTagList()
         {

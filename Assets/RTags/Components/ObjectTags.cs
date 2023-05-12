@@ -24,6 +24,8 @@ namespace RTags
             }
         }
 
+        private static bool inactiveWarn = false;
+
         //The only reason these are public is so that the custom inspector can see them
         public List<string> _objectTags = new List<string>();
         public List<ComponentTags> _componentTags = new List<ComponentTags>();
@@ -43,13 +45,7 @@ namespace RTags
             {
                 if(tag != "" && IsTagCached(tag))
                 {
-                    var workingType = typeof(ObjectTags);
-                    if(!cache.ContainsKey(tag)){cache.Add(tag, new Dictionary<System.Type, List<Component>>());}
-                    if(!cache[tag].ContainsKey(workingType)){cache[tag].Add(workingType, new List<Component>());}
-                    if(!cache[tag][workingType].Contains(this))
-                    {
-                        cache[tag][workingType].Add(this);
-                    }
+                    CacheTag(tag, this);
                 }
             }
             foreach(ComponentTags tagSet in _componentTags)
@@ -58,13 +54,7 @@ namespace RTags
                 {
                     if (tag != "" && IsTagCached(tag))
                     {    
-                        var workingType = tagSet.targetComponent.GetType();
-                        if(!cache.ContainsKey(tag)){cache.Add(tag, new Dictionary<System.Type, List<Component>>());}
-                        if(!cache[tag].ContainsKey(workingType)){cache[tag].Add(workingType, new List<Component>());}
-                        if(!cache[tag][workingType].Contains(tagSet.targetComponent))
-                        {
-                            cache[tag][workingType].Add(tagSet.targetComponent);
-                        }
+                        CacheTag(tag, tagSet.targetComponent);
                     }
                 }
             }
@@ -74,26 +64,47 @@ namespace RTags
         {
             foreach(string tag in _objectTags)
             {
-                if(tag != "" && IsTagCached(tag))
+                if(tag != "")
                 {
-                    var workingType = typeof(ObjectTags);
-                    if(!cache.ContainsKey(tag)){continue;}
-                    if(!cache[tag].ContainsKey(workingType)){continue;}
-                    cache[tag][workingType].Remove(this);
+                    DeCacheTag(tag, this);
                 }
             }
             foreach(ComponentTags tagSet in _componentTags)
             {
                 foreach(string tag in tagSet.componentTags)
                 {
-                    if (tag != "" && IsTagCached(tag))
+                    if (tag != "")
                     {    
-                        var workingType = tagSet.targetComponent.GetType();
-                        if(!cache.ContainsKey(tag)){continue;}
-                        if(!cache[tag].ContainsKey(workingType)){continue;}
-                        cache[tag][workingType].Remove(tagSet.targetComponent);
+                        DeCacheTag(tag, tagSet.targetComponent);
                     }
                 }
+            }
+        }
+
+
+        /// <summary>
+        /// caches the tag and component combo
+        /// </summary>
+        public void CacheTag(string tag, Component attachedComponent)
+        {
+            if(!cache.ContainsKey(tag)){cache.Add(tag, new Dictionary<System.Type, List<Component>>());}
+            foreach(System.Type workingType in GetInheritedTypes(attachedComponent.GetType()))
+            {
+                if(!cache[tag].ContainsKey(workingType)){cache[tag].Add(workingType, new List<Component>());}
+                if(!cache[tag][workingType].Contains(attachedComponent))
+                {
+                    cache[tag][workingType].Add(attachedComponent);
+                }
+            }
+        }
+
+        public void DeCacheTag(string tag, Component attachedComponent)
+        {
+            if(!cache.ContainsKey(tag)){return;}
+            foreach(System.Type workingType in GetInheritedTypes(attachedComponent.GetType()))
+            {
+                if(!cache[tag].ContainsKey(workingType)){continue;}
+                cache[tag][workingType].Remove(attachedComponent);
             }
         }
 
@@ -146,13 +157,7 @@ namespace RTags
             if (_objectTags.Contains(tag)) { return; }
             _objectTags.Add(tag);
             if(!IsTagCached(tag)){ return; }
-            var workingType = typeof(ObjectTags);
-            if(!cache.ContainsKey(tag)){cache.Add(tag, new Dictionary<System.Type, List<Component>>());}
-            if(!cache[tag].ContainsKey(workingType)){cache[tag].Add(workingType, new List<Component>());}
-            if(!cache[tag][workingType].Contains(this))
-            {
-                cache[tag][workingType].Add(this);
-            }
+            CacheTag(tag, this);
         }
 
         /// <summary>
@@ -168,13 +173,7 @@ namespace RTags
             }
             if (_componentTags.GetTagListByComponent(c).Contains(tag)) { return; }
             _componentTags.GetTagListByComponent(c).Add(tag);
-            var workingType = c.GetType();
-            if(!cache.ContainsKey(tag)){cache.Add(tag, new Dictionary<System.Type, List<Component>>());}
-            if(!cache[tag].ContainsKey(workingType)){cache[tag].Add(workingType, new List<Component>());}
-            if(!cache[tag][workingType].Contains(this))
-            {
-                cache[tag][workingType].Add(this);
-            }
+            CacheTag(tag, c);
         }
 
         /// <summary>
@@ -185,10 +184,7 @@ namespace RTags
             if (tag == "") { return; }
             if (!_objectTags.Contains(tag)) { return; }
             _objectTags.Remove(tag);
-            var workingType = typeof(ObjectTags);
-            if(!cache.ContainsKey(tag)){return;}
-            if(!cache[tag].ContainsKey(workingType)){return;}
-            cache[tag][workingType].Remove(this);
+            DeCacheTag(tag, this);
         }
 
         /// <summary>
@@ -204,10 +200,7 @@ namespace RTags
             }
             if (!_componentTags.GetTagListByComponent(c).Contains(tag)) { return; }
             _componentTags.GetTagListByComponent(c).Remove(tag);
-            var workingType = c.GetType();
-            if(!cache.ContainsKey(tag)){return;}
-            if(!cache[tag].ContainsKey(workingType)){return;}
-            cache[tag][workingType].Remove(c);
+            DeCacheTag(tag, c);
         }
 
         #endregion
@@ -222,7 +215,7 @@ namespace RTags
             if(Application.isPlaying && ConfirmTagCacheState(tag))
             {
                 var workingType = typeof(ObjectTags);
-                if(includeInactive) {Debug.LogWarning("Objects that have not been active before can not be in the cache and will not show up in the results, if you need to get said objects, you should use a non cached tag"); }
+                if(includeInactive && !inactiveWarn) {Debug.LogWarning("Objects that have not been active before can not be in the cache and will not show up in the results, if you need to get said objects, you should use a non cached tag"); inactiveWarn = true; }
                 if(!cache.ContainsKey(tag)){ return null; }
                 if(!cache[tag].ContainsKey(workingType)){ return null; }
                 if(cache[tag][workingType].Count == 0) { return null; }
@@ -246,7 +239,7 @@ namespace RTags
             if(Application.isPlaying && ConfirmTagCacheState(tag))
             {
                 var workingType = typeof(ObjectTags);
-                if(includeInactive) {Debug.LogWarning("Objects that have not been active before can not be in the cache and will not show up in the results, if you need to get said objects, you should use a non cached tag"); }
+                if(includeInactive && !inactiveWarn) {Debug.LogWarning("Objects that have not been active before can not be in the cache and will not show up in the results, if you need to get said objects, you should use a non cached tag"); inactiveWarn = true; }
                 if(!cache.ContainsKey(tag)) { return new GameObject[0]; }
                 if(!cache[tag].ContainsKey(workingType)){ return new GameObject[0]; }
                 if(cache[tag][workingType].Count == 0) { return new GameObject[0]; }
@@ -278,10 +271,13 @@ namespace RTags
         /// </summary>
         public static T GetFirstComponentWithTag<T>(string tag, bool includeInactive = false) where T : Component
         {
+            if(tag == "") { return null; }
             if(Application.isPlaying && ConfirmTagCacheState(tag))
             {
-                if(includeInactive) {Debug.LogWarning("Objects that have not been active before can not be in the cache and will not show up in the results, if you need to get said objects, you should use a non cached tag"); }
-                return GetAllValidMatchesFromCache<T>(tag)[0] as T;
+                if(includeInactive && !inactiveWarn) {Debug.LogWarning("Objects that have not been active before can not be in the cache and will not show up in the results, if you need to get said objects, you should use a non cached tag"); inactiveWarn = true; }
+                if(!cache.ContainsKey(tag)) { return null; }
+                if(!cache[tag].ContainsKey(typeof(T))) { return null; }
+                return cache[tag][typeof(T)][0] as T;
             }
             else
             {
@@ -309,13 +305,15 @@ namespace RTags
         /// </summary>
         public static T[] GetAllComponentsWithTag<T>(string tag, bool includeInactive = false) where T : Component
         {
-            
+            if(tag == "") { return new T[0]; }   
             if(Application.isPlaying && ConfirmTagCacheState(tag))
             {
                 var workingType = typeof(T);
-                if(includeInactive) {Debug.LogWarning("Objects that have not been active before can not be in the cache and will not show up in the results, if you need to get said objects, you should use a non cached tag"); }
+                if(includeInactive && !inactiveWarn) {Debug.LogWarning("Objects that have not been active before can not be in the cache and will not show up in the results, if you need to get said objects, you should use a non cached tag"); inactiveWarn = true; }
+                if(!cache.ContainsKey(tag)) { return new T[0]; }
+                if(!cache[tag].ContainsKey(workingType)) { return new T[0]; }
                 List<T> results = new List<T>();
-                foreach(Component c in GetAllValidMatchesFromCache<T>(tag))
+                foreach(Component c in cache[tag][workingType])
                 {
                     results.Add(c as T);
                 }
@@ -473,20 +471,6 @@ namespace RTags
             }
         }
 
-        private static List<Component> GetAllValidMatchesFromCache<T>(string tag) where T : Component
-        {
-            List<Component> results = new List<Component>();
-            if(!cache.ContainsKey(tag)){return results;}
-            foreach(KeyValuePair<System.Type, List<Component>> dict in cache[tag])
-            {
-                if(typeof(T).IsAssignableFrom(dict.Key))
-                {
-                    results.AddRange(dict.Value);
-                }
-            }
-            return results;
-        }
-
         public static void TrackNewTag(string tag, bool useCache = false)
         {
             ConfirmTagListLoaded();
@@ -500,6 +484,21 @@ namespace RTags
                 if(useCache) { needsCacheTags.Add(tag); }
             }
         }
+
+        public static List<System.Type> GetInheritedTypes(System.Type topType)
+        {
+            List<System.Type> results = new List<System.Type>();
+            System.Type curType = topType;
+            int tempSaftey = 100;
+            while(curType != typeof(UnityEngine.Object) || tempSaftey <= 0)
+            {
+                results.Add(curType);
+                curType = curType.BaseType;
+                tempSaftey--;
+            }
+            return results;
+        }
+
         #endregion
     }
 }
