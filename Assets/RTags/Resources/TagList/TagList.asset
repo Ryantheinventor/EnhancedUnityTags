@@ -12,10 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf1c511b58088a986b7e7fd338a1200e, type: 3}
   m_Name: TagList
   m_EditorClassIdentifier: 
-  tags:
-  - tagName: ShowVelocity
-    isPreCached: 1
-  - tagName: Bump
-    isPreCached: 0
-  - tagName: Inheritence
-    isPreCached: 1
+  tags: []

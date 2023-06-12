@@ -38,6 +38,26 @@ namespace RTagsEditor
             bool targetEdited = false;
 
 
+            if(!tagList)
+            {
+                if(GUILayout.Button("No Tag List, Create New Tag List"))
+                {
+                    TagListEditor.CreateNewTagList();
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                if(GUILayout.Button("Open Tag List"))
+                {
+                    TagListEditor.OpenTagList();
+                }
+            }
+
+
             List<ObjectTags.ComponentTags> newSets = new List<ObjectTags.ComponentTags>();
             for (int i = ((ObjectTags)target)._componentTags.Count - 1; i >= 0 ; i--)
             {

@@ -58,7 +58,7 @@ namespace RTagsEditor
         }
 
         [MenuItem("RTags/Open Tag List")]
-        private static void OpenTagList()
+        public static void OpenTagList()
         {
             string combinedPath = ObjectTags.tagListPath + "/" + ObjectTags.tagListName + ".asset";
             TagListAsset targetAsset = AssetDatabase.LoadAssetAtPath<TagListAsset>(combinedPath);
