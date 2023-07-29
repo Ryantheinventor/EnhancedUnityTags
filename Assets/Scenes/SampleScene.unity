@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 705507995}
   - component: {fileID: 705507994}
+  - component: {fileID: 705507996}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -217,6 +218,25 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &705507996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 705507993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b88f2bf75789ed2cf91ab0289b39459a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _objectTags: []
+  _componentTags:
+  - targetComponent: {fileID: 705507995}
+    componentTags:
+    - Test
+  - targetComponent: {fileID: 705507994}
+    componentTags: []
 --- !u!1 &888505303
 GameObject:
   m_ObjectHideFlags: 0
@@ -228,6 +248,7 @@ GameObject:
   - component: {fileID: 888505305}
   - component: {fileID: 888505304}
   - component: {fileID: 888505306}
+  - component: {fileID: 888505307}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -280,6 +301,26 @@ MonoBehaviour:
   iTag:
     tagName: Inheritence
   iLevel: 2
+--- !u!114 &888505307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 888505303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b88f2bf75789ed2cf91ab0289b39459a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _objectTags: []
+  _componentTags:
+  - targetComponent: {fileID: 888505305}
+    componentTags: []
+  - targetComponent: {fileID: 888505304}
+    componentTags: []
+  - targetComponent: {fileID: 888505306}
+    componentTags: []
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -397,6 +438,7 @@ GameObject:
   - component: {fileID: 2095187474}
   - component: {fileID: 2095187473}
   - component: {fileID: 2095187472}
+  - component: {fileID: 2095187476}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Untagged
@@ -483,3 +525,26 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2095187476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2095187471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b88f2bf75789ed2cf91ab0289b39459a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _objectTags: []
+  _componentTags:
+  - targetComponent: {fileID: 2095187472}
+    componentTags: []
+  - targetComponent: {fileID: 2095187475}
+    componentTags:
+    - Test
+  - targetComponent: {fileID: 2095187474}
+    componentTags: []
+  - targetComponent: {fileID: 2095187473}
+    componentTags: []

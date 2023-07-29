@@ -208,5 +208,66 @@ namespace RTagsEditor
 
             return targetEdited;
         }
+
+        [MenuItem("CONTEXT/Component/Add Tag")]
+        public static void AddTagToComponent(MenuCommand command)
+        {
+            // Debug.Log($"Add tag to comp:{((Component)command.context).gameObject.name}/{command.context.GetType()}");
+            AddTagPopup.targetComponents.Add((Component)command.context);
+            if(!AddTagPopup.Open)
+            {
+                PopupWindow.Show(GetPopupRect(), new AddTagPopup());
+            }
+        }
+
+        [MenuItem("CONTEXT/Component/Add Tag", true)]
+        public static bool AddTagToComponentCheck(MenuCommand command)
+        {
+            return command.context.GetType() != typeof(ObjectTags);
+        }
+
+        [MenuItem("GameObject/Add Tag")]
+        public static void AddTagToGameObject(MenuCommand command)
+        {
+            if(Selection.objects.Length > 0 && command.context != null)
+            {
+                if(command.context == Selection.objects[0])//this method *sometimes*(thanks Unity) gets called on each selected object, we need to only run it once
+                {
+                    foreach(Object o in Selection.objects)
+                    {
+                        AddTagPopup.targetGameObjects.Add((GameObject)o);
+                    }
+                    PopupWindow.Show(GetPopupRect(), new AddTagPopup());
+                }
+            }
+            else if(command.context == null)
+            {
+                foreach(Object o in Selection.objects)
+                    {
+                        AddTagPopup.targetGameObjects.Add((GameObject)o);
+                    }
+                    PopupWindow.Show(GetPopupRect(), new AddTagPopup());
+            }
+        }
+
+        [MenuItem("GameObject/Add Tag", true)]
+        public static bool AddTagToGameObjectCheck(MenuCommand command)
+        {
+            Object[] selectedObjects = Selection.objects;
+            if(selectedObjects.Length == 0) { return false; }
+            foreach(Object o in selectedObjects)
+            {
+                if(o.GetType() != typeof(GameObject))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static Rect GetPopupRect()
+        {
+            return new Rect(1, 1, 1, 1);
+        }
     }
 }
