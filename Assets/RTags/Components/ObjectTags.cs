@@ -210,7 +210,7 @@ namespace RTags
         /// <summary>
         /// Get the first GameObject tagged with the specified tag
         /// </summary>
-        public static GameObject GetFirstGameObjectWithTag(string tag, bool includeInactive)
+        public static GameObject GetFirstGameObjectWithTag(string tag, bool includeInactive = false)
         {
             if(Application.isPlaying && ConfirmTagCacheState(tag))
             {
