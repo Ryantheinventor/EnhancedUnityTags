@@ -9,7 +9,7 @@ namespace RTagsEditor
 {
     public class TagListEditor : MonoBehaviour
     {     
-        [MenuItem("RTags/Tag List")]
+        [MenuItem("RTags/New Tag List")]
         public static void CreateNewTagList()
         {
             ConfirmAssetPath(ObjectTags.tagListPath);
@@ -20,11 +20,11 @@ namespace RTagsEditor
                 tagListAsset = ScriptableObject.CreateInstance<TagListAsset>();
                 AssetDatabase.CreateAsset(tagListAsset, combinedPath);
             }
-            Selection.activeObject = tagListAsset;
+            // Selection.activeObject = tagListAsset;
             AssetDatabase.Refresh();
         }
 
-        [MenuItem("RTags/Tag List", true)]
+        [MenuItem("RTags/New Tag List", true)]
         public static bool CreateNewTagListCheck()
         {
             if (!AssetDatabase.IsValidFolder(ObjectTags.tagListPath)) { return true; }
@@ -50,7 +50,7 @@ namespace RTagsEditor
         }
 
         [MenuItem("RTags/Open Tag List", true)]
-        private static bool OpenTagListCheck()
+        public static bool OpenTagListCheck()
         {
             if (!AssetDatabase.IsValidFolder(ObjectTags.tagListPath)) { return false; }
             string combinedPath = ObjectTags.tagListPath + "/" + ObjectTags.tagListName + ".asset";
@@ -63,7 +63,8 @@ namespace RTagsEditor
         {
             string combinedPath = ObjectTags.tagListPath + "/" + ObjectTags.tagListName + ".asset";
             TagListAsset targetAsset = AssetDatabase.LoadAssetAtPath<TagListAsset>(combinedPath);
-            Selection.activeObject = targetAsset;
+            // Selection.activeObject = targetAsset;
+            TagListWindow.InitWindow(targetAsset);
         }
     }
 }

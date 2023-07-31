@@ -14,4 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tags:
   - tagName: Test
-    isPreCached: 0
+    isPreCached: 1
+  - tagName: Test2
+    isPreCached: 1
