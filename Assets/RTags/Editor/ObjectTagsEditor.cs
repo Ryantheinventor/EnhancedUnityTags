@@ -43,6 +43,7 @@ namespace RTagsEditor
                 if(GUILayout.Button("No Tag List, Create New Tag List"))
                 {
                     TagListEditor.CreateNewTagList();
+                    tagList = AssetDatabase.LoadAssetAtPath<TagListAsset>(ObjectTags.tagListPath + "/" + ObjectTags.tagListName + ".asset");
                 }
                 else
                 {

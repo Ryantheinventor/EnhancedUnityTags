@@ -21,6 +21,7 @@ namespace RTagsEditor
                 AssetDatabase.CreateAsset(tagListAsset, combinedPath);
             }
             // Selection.activeObject = tagListAsset;
+            TagListWindow.InitWindow(tagListAsset);
             AssetDatabase.Refresh();
         }
 
