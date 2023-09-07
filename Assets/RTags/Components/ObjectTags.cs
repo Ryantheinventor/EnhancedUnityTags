@@ -344,6 +344,11 @@ namespace RTags
         #endregion 
 
         #region Static Cache Handler Methods
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        #if UNITY_EDITOR
+        [UnityEditor.InitializeOnEnterPlayMode]
+        [UnityEditor.Callbacks.DidReloadScripts]
+        #endif  
         private static void ConfirmTagListLoaded()
         {
             if(_trackedTags == null)
