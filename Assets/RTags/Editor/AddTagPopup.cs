@@ -102,21 +102,19 @@ namespace RTagsEditor
             tagList = AssetDatabase.LoadAssetAtPath<TagListAsset>(ObjectTags.tagListPath + "/" + ObjectTags.tagListName + ".asset");
 
             Open = true;
-            Debug.Log("Open");
-            foreach(GameObject go in targetGameObjects)
-            {
-                Debug.Log(go.name);
-            }
-            foreach(Component c in targetComponents)
-            {
-                Debug.Log(c.gameObject.name + "/" + c.GetType());
-            }
+            //foreach(GameObject go in targetGameObjects)
+            //{
+            //    Debug.Log(go.name);
+            //}
+            //foreach(Component c in targetComponents)
+            //{
+            //    Debug.Log(c.gameObject.name + "/" + c.GetType());
+            //}
         }
 
         public override void OnClose()
         {
             Open = false;
-            Debug.Log("Close");
             targetGameObjects.Clear();
             targetComponents.Clear();;
         }

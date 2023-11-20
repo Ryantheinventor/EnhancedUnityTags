@@ -120,7 +120,12 @@ namespace RTagsEditor
             }
 
             foldOutStyle.fontStyle = FontStyle.Bold;
-            componentFoldouts = EditorGUILayout.Foldout(componentFoldouts, new GUIContent("Component Tags"), true, foldOutStyle);
+            int tagCount = 0;
+            foreach (ObjectTags.ComponentTags ct in ((ObjectTags)target)._componentTags) 
+            {
+                tagCount += ct.componentTags.Count;
+            }
+            componentFoldouts = EditorGUILayout.Foldout(componentFoldouts, new GUIContent($"Component Tags ({tagCount})"), true, foldOutStyle);
 
             if(componentFoldouts)
             {
@@ -162,11 +167,11 @@ namespace RTagsEditor
                     tags.Add("");
                     targetEdited = true;
                 }
-                if(GUILayout.Button("-", GUILayout.MaxHeight(19), GUILayout.MaxWidth(19)) && tags.Count > 0)
-                {
-                    tags.RemoveAt(tags.Count - 1);
-                    targetEdited = true;
-                }
+                //if(GUILayout.Button("-", GUILayout.MaxHeight(19), GUILayout.MaxWidth(19)) && tags.Count > 0)
+                //{
+                //    tags.RemoveAt(tags.Count - 1);
+                //    targetEdited = true;
+                //}
                 GUILayout.Space(20);
                 EditorGUILayout.EndHorizontal();
                 GUILayout.Space(1);
@@ -180,7 +185,23 @@ namespace RTagsEditor
                     string curTag = tags[i];
                     int curSelection = options.IndexOf(curTag);
                     curSelection++;
-                    int selected = EditorGUILayout.Popup(curSelection, displayedOptions.ToArray());
+                    Rect popupRect = EditorGUILayout.GetControlRect();
+                    Rect removeButtonRect = popupRect;
+
+
+                    
+                    popupRect.width = popupRect.width - 42;
+                    int selected = EditorGUI.Popup(popupRect, curSelection, displayedOptions.ToArray());
+
+                    removeButtonRect.x = popupRect.x + popupRect.width + 2;
+                    removeButtonRect.width = 20;
+                    if(GUI.Button(removeButtonRect, "-")) 
+                    {
+                        tags.RemoveAt(i);
+                        return targetEdited;
+                    }
+                    
+                    //int selected = EditorGUILayout.Popup(curSelection, displayedOptions.ToArray());
                     if(selected != curSelection)
                     {
                         if(selected == 0) 
