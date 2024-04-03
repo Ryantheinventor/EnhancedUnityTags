@@ -1,5 +1,5 @@
 # Enhanced Unity Tags
-This tool aims to provide a more capable tagging system for unity. It provides the ability to have pre cached tags, and multiple tags per gameobject or even component.
+This tool aims to provide a more capable tagging system for unity. It provides the ability to have pre-cached tags, and multiple tags per gameobject or even component.
 
 ## **Contents**
 - [How To Use (In Engine)](#how-to-use-unity)
@@ -35,8 +35,8 @@ Once that is done you are free to use the tags anywhere
 ![Image](READMEPictures/AddTagPopup.png)
 
 
-### Adding tags to Compoent
-- Right click on the Compoent in the inspector and select add tag
+### Adding tags to Component
+- Right-click on the Component in the inspector and select add tag
 
 ![Image](READMEPictures/AddTagToComponent.png)
 
@@ -47,7 +47,7 @@ Once that is done you are free to use the tags anywhere
 
 ### Adding and removing tags via the ObjectTags component
 
-- The ObjectTags componet has add and remove buttons for the GameObject and for each component
+- The ObjectTags component has add and remove buttons for the GameObject and for each component
 
 ![Image](READMEPictures/UsingObjectTagsComponentToModifyTags.png)
 
@@ -55,15 +55,15 @@ Once that is done you are free to use the tags anywhere
 
 <a name = "how-to-use-code">
 
-### How To Use (Code):
+## How To Use (Code):
 
 ```csharp
-//All important methods and classes are avalible in the RTags namspace so make sure to add the using statement when you want to use it
+//All important methods and classes are available in the RTags namespace so make sure to add the using statement when you want to use it
 using RTags; 
 ```
 
 ```csharp
-//The following is how to check, add and remove tags from GameObjects and Components
+//The following is how to check, add, and remove tags from GameObjects and Components
 
 //Check if the target is tagged
 gameObject.IsTagged(tagName);
