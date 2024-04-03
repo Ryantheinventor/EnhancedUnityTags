@@ -79,5 +79,29 @@ namespace RTags
             if(!ot) { return new string[0]; }
             return ot.GetComponentTags(self);
         }
+
+        /// <summary>
+        /// Removes the specified tag from the GameObject
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="tag"></param>
+        public static void RemoveTag(this GameObject self, string tag)
+        {
+            ObjectTags ot = self.GetComponent<ObjectTags>();
+            if (!ot) { return; }
+            ot.RemoveTagFromGO(tag);
+        }
+
+        /// <summary>
+        /// Removes the specified tag from the Component
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="tag"></param>
+        public static void RemoveTag(this Component self, string tag)
+        {
+            ObjectTags ot = self.GetComponent<ObjectTags>();
+            if (!ot) { return; }
+            ot.RemoveTagFromComponent(tag, self);
+        }
     }
 }
