@@ -11,7 +11,6 @@ namespace RTags
     {
         public static readonly string tagListPath = "Assets/RTags/Resources/TagList";
         public static readonly string tagListName = "TagList";
-        //private static Dictionary<string, List<ObjectTags>> cachedTags = new Dictionary<string, List<ObjectTags>>();
         private static Dictionary<string, Dictionary<System.Type, List<object>>> cache = new Dictionary<string, Dictionary<System.Type, List<object>>>();
         private static List<string> needsCacheTags = new List<string>();//tracks tags that have had their cache mode changed and need to be cached on their next call
         private static List<TagListAsset.TagInfo> _trackedTags;
@@ -39,7 +38,7 @@ namespace RTags
 
         #region Instance Methods
 
-        void Awake() 
+        private void Awake() 
         {
             foreach(string tag in _objectTags)
             {
@@ -60,7 +59,7 @@ namespace RTags
             }
         }
 
-        void OnDestroy() 
+        private void OnDestroy() 
         {
             foreach(string tag in _objectTags)
             {
@@ -85,7 +84,7 @@ namespace RTags
         /// <summary>
         /// caches the tag and component combo
         /// </summary>
-        public void CacheTag(string tag, Component attachedComponent)
+        internal void CacheTag(string tag, Component attachedComponent)
         {
             if(!cache.ContainsKey(tag)){cache.Add(tag, new Dictionary<System.Type, List<object>>());}
             foreach(System.Type workingType in GetInheritedTypes(attachedComponent.GetType()))
@@ -98,7 +97,10 @@ namespace RTags
             }
         }
 
-        public void DeCacheTag(string tag, Component attachedComponent)
+        /// <summary>
+        /// decaches the tag and component combo
+        /// </summary>
+        internal void DeCacheTag(string tag, Component attachedComponent)
         {
             if(!cache.ContainsKey(tag)){return;}
             foreach(System.Type workingType in GetInheritedTypes(attachedComponent.GetType()))
@@ -116,6 +118,10 @@ namespace RTags
             return _objectTags.ToArray();
         }
 
+        /// <summary>
+        /// Gets all tags currently assigned to the component
+        /// </summary>
+        /// <returns>A array of the tags</returns>
         public string[] GetComponentTags(Component component)
         {
             if(_componentTags.ContainsTagsForComponent(component))
@@ -344,6 +350,9 @@ namespace RTags
         #endregion 
 
         #region Static Cache Handler Methods
+        /// <summary>
+        /// Loads tag list if it is not already
+        /// </summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         #if UNITY_EDITOR
         [UnityEditor.InitializeOnEnterPlayMode]
@@ -368,6 +377,11 @@ namespace RTags
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns>True if the tag is set to be cached</returns>
         public static bool IsTagCached(string tag)
         {
             foreach(TagListAsset.TagInfo tagInfo in TrackedTags)
@@ -380,6 +394,11 @@ namespace RTags
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns>True if the tag is tracked by the internal system</returns>
         public static bool IsTagTracked(string tag)
         {
             foreach(TagListAsset.TagInfo tagInfo in TrackedTags)
@@ -392,6 +411,9 @@ namespace RTags
             return false;
         }
 
+        /// <summary>
+        /// Sets the cache mode of the specified tag
+        /// </summary>
         public static void SetTagCacheMode(string tag, bool useCache)
         {
             ConfirmTagListLoaded();
@@ -419,6 +441,10 @@ namespace RTags
             Debug.LogError("Trying to change the cache mode on a non tracked tag. Make sure the tag is tracked before trying to modify it's cache mode.");
         }
 
+        /// <summary>
+        /// unloads the cache for the specified tag
+        /// </summary>
+        /// <param name="tag"></param>
         private static void DumpCacheForTag(string tag)
         {
             if(cache.ContainsKey(tag))
@@ -439,7 +465,11 @@ namespace RTags
             needsCacheTags.Clear();
         }
 
-        //Makes sure the tag is cached if needed and return true if the tag is cached
+        /// <summary>
+        /// Makes sure the tag is cached if needed and return true if the tag is cached
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns></returns>
         private static bool ConfirmTagCacheState(string tag)
         {
             if(!IsTagCached(tag)) { return false; }
@@ -451,6 +481,11 @@ namespace RTags
             return true;
         }
 
+        /// <summary>
+        /// Makes sure all instances of the specified tag is cached
+        /// </summary>
+        /// <param name="tag">tag to be cached</param>
+        /// <param name="skipCachedCheck">Skips the possibly heavy check for if the tag should be cached</param>
         private static void CacheNewTag(string tag, bool skipCachedCheck = false)
         {
             if(!skipCachedCheck && !IsTagCached(tag)){ return; }
@@ -476,6 +511,12 @@ namespace RTags
             }
         }
 
+
+        /// <summary>
+        /// Adds a new tag to be tracked
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <param name="useCache"></param>
         public static void TrackNewTag(string tag, bool useCache = false)
         {
             ConfirmTagListLoaded();
@@ -490,13 +531,19 @@ namespace RTags
             }
         }
 
-        public static List<System.Type> GetInheritedTypes(System.Type topType)
+
+        /// <summary>
+        /// Gets all types that the supplied type inherits from
+        /// </summary>
+        /// <param name="topType"></param>
+        /// <returns></returns>
+        internal static List<System.Type> GetInheritedTypes(System.Type topType)
         {
             List<System.Type> results = new List<System.Type>();
-            results.AddRange(topType.GetInterfaces());
+            results.AddRange(topType.GetInterfaces());//all inherited interfaces
             System.Type curType = topType;
             int tempSaftey = 100;
-            while(curType != typeof(UnityEngine.Object) || tempSaftey <= 0)
+            while(curType != typeof(UnityEngine.Object) || tempSaftey <= 0)//full inheritence chain down to UnityEngine.Object
             {
                 results.Add(curType);
                 curType = curType.BaseType;

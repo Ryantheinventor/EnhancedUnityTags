@@ -5,7 +5,7 @@ using UnityEditor;
 using RTags;
 using RTags.Data;
 
-namespace RTagsEditor
+namespace RTags.EditorScripts
 {
     public class AddTagPopup : PopupWindowContent
     {

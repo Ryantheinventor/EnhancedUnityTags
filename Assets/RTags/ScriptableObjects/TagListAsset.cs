@@ -4,7 +4,9 @@ using UnityEngine;
 
 namespace RTags.Data
 {    
-    //[CreateAssetMenu(menuName = "RTags/New Tag List", fileName = "Tag List")]
+    /// <summary>
+    /// This asset stores the preconfigured tag list
+    /// </summary>
     public class TagListAsset : ScriptableObject
     {
         public List<TagInfo> tags = new List<TagInfo>();
@@ -16,6 +18,10 @@ namespace RTags.Data
             public bool isPreCached;
         }
 
+        /// <summary>
+        /// all the tag names
+        /// </summary>
+        /// <returns></returns>
         public List<string> GetTagNames() 
         {
             List<string> results = new List<string>();
@@ -26,6 +32,10 @@ namespace RTags.Data
             return results;
         }
 
+        /// <summary>
+        ///  
+        /// </summary>
+        /// <returns>all the tag names with an added part to display it's cached status</returns>
         public List<string> GetTagNamesWithCacheStatus() 
         {
             List<string> results = new List<string>();

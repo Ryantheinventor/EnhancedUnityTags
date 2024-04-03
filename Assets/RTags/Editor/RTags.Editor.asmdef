@@ -1,0 +1,16 @@
+{
+    "name": "RTags.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:1f1c6b24f86b11f4485644e2ab72f016"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

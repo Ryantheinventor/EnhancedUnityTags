@@ -6,7 +6,7 @@ using RTags;
 using RTags.Data;
 using RTags.Utils;
 
-namespace RTagsEditor
+namespace RTags.EditorScripts
 {
     [CustomEditor(typeof(ObjectTags))]
     public class ObjectTagsEditor : Editor

@@ -5,7 +5,7 @@ using UnityEditor;
 using RTags;
 using RTags.Data;
 
-namespace RTagsEditor
+namespace RTags.EditorScripts
 {
     [CustomPropertyDrawer(typeof(TagListAsset.TagInfo))]
     public class TagInfoEditor : PropertyDrawer

@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace RTags.Utils
 {
+    /// <summary>
+    /// A set of extensions made to assist in interacting with lists of ComponentTags objects
+    /// </summary>
     public static class ComponentTagListUtils
     {
         public static bool ContainsTagsForComponent(this List<ObjectTags.ComponentTags> sets, Component c)

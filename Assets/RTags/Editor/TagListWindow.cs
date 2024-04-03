@@ -5,7 +5,7 @@ using UnityEditor;
 using RTags.Data;
 using RTags;
 
-namespace RTagsEditor
+namespace RTags.EditorScripts
 {
     public class TagListWindow : EditorWindow
     {
